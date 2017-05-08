@@ -71,10 +71,45 @@ def greatestCommonDivisor(a, b):
         if (r == 0): break
     return a
 
+def greatestCommonDivisor_n(a):
+    if len(a) == 1:
+        return a[0]
+    if len(a) == 2:
+        return greatestCommonDivisor(a[0], a[1])
+    else:
+        b1 = a[0]
+        b2 = a[1]
+        c = greatestCommonDivisor(b1, b2)
+        d = [c,] +  a[2:]
+        return greatestCommonDivisor_n(d)
+
+def leastCommonMultiple(a, b):
+    return abs(a * b) / greatestCommonDivisor(a, b)
+
+def leastCommonMultiple_n(a):
+    if len(a) == 1:
+        return a[0]
+    if len(a) == 2:
+        return leastCommonMultiple(a[0], a[1])
+    else:
+        b1 = a[0]
+        b2 = a[1]
+        c = leastCommonMultiple(b1, b2)
+        d = [c, ] + a[2:]
+        return leastCommonMultiple_n(d)
+
 def isCoprime(a, b):
     if (greatestCommonDivisor(a, b) == 1):
         return True
     return False
+
+def getReciprocal(a, m):
+    if (isCoprime(a, m)):
+        for i in range(1, m):
+            if a * i % m == 1:
+                return i
+    else:
+        return False
 
 def decompose(a):
     if a == 0: return 0
@@ -111,6 +146,33 @@ def getStandardDecomposition(a):
         if alphalist[i] != 1:
             string += "^" + str(alphalist[i])
     return string
+
+def Bezout(a, b):
+    (r1, r2) = (a, b)
+    (s1, s2) = (1, 0)
+    (t1, t2) = (0, 1)
+    while (r2 != 0):
+        q = r1 / r2
+        r1 = r1 % r2
+        (r1, r2) = (r2, r1)
+        if (r2 == 0): break
+        s1 = s2 * (-q) + s1
+        (s1, s2) = (s2, s1)
+        t1 = t2 * (-q) + t1
+        (t1, t2) = (t2, t1)
+    return (s2, t2)
+
+def binaryLinearDiophantineEquation(a, b, c):
+    d = greatestCommonDivisor(a, b)
+    if (c % d != 0):
+        return False
+    else:
+        a /= d
+        b /= d
+        c /= d
+        x0, y0 = d * Bezout(a, b)
+        return [(x0, y0), "x = " + str(x0) + " - " + str(b) + " * t",
+                "y = " + str(y0) + " + " + str(a)  + " * t"]
 
 def quickPow(a, b, m):
     if (b == 1):
@@ -203,10 +265,17 @@ def Jacobi(a, p):
         result *= Legendre(a, plist2[i])
     return result
 
-def NaiveModEquation(a, m):
-    for x in range(0, m):
+def NaiveModSquareEquation(a, m):
+    result = []
+    for x in range(0, int(m ** 0.5) + 1):
         if x**2 % m == a:
-            return (x, m - x)
+            result.append((x, m - x))
+    if (len(result) == 0):
+        return False
+    else: return result
+
+def ModSquareEquation(a, m):
+    pass
 
 def NaiveSquarePEquation(p):
     for x in range(0, int(p ** 0.5) + 1):
@@ -297,6 +366,29 @@ def main():
 #   Test of greatestCommonDivisor
     print greatestCommonDivisor(- 2007 * 5 * 7, 2007 * 3 * 5)
 #########################################
+#   Test of greatestCommonDivisor_n
+    print greatestCommonDivisor_n([120, 150, 210, 35])
+    print greatestCommonDivisor_n([-2 * 2017, 3 * 7, 7 * 2017])
+#########################################
+#   Test of leastCommonMultiple
+    print leastCommonMultiple(2 * 2017, 3 * 2017)
+#########################################
+#   Test of leastCommonMultiple_n
+    print leastCommonMultiple_n([120, 150, 210, 35])
+    print leastCommonMultiple_n([3 * 5, 5 * 7, 7 * 11])
+#########################################
+#   Test of Bezout
+    print Bezout(1859, 1573)
+    print Bezout(46480, 39423)
+#########################################
+#   Test of getReciprocal
+    print getReciprocal(2, 4)
+    print getReciprocal(3, 7)
+#########################################
+#   Test of binaryLinearDiophantineEquation
+    print binaryLinearDiophantineEquation(7, 4, 100)
+    print binaryLinearDiophantineEquation(7, 14, 20)
+#########################################
 #   Test of isCoprime
     print isCoprime(2017, 2017 * 456)
     print isCoprime(2017, 2 ** (2 ** 4) + 1)
@@ -334,8 +426,9 @@ def main():
     print Jacobi(191, 397)
 #########################################
 #   Test of NaiveModEquation
-    print NaiveModEquation(39, 105)
-    print NaiveModEquation(1369, 2310)
+    print NaiveModSquareEquation(137, 227)
+    print NaiveModSquareEquation(39, 105)
+    print NaiveModSquareEquation(1369, 2310)
 #########################################
 #   Test of NaiveSquareQEquation
     print NaiveSquarePEquation(797)
