@@ -46,3 +46,7 @@ A python library that realizes the basic algorthims in number theory
 + def getAllPrimaryRoot_n(p, a):
 + related useful functions
 + other algorithms such as RSA.
+
+### Contact me ###
++ wangjksjtu_01@sjtu.edu.cn
++ 249446879@qq.com
