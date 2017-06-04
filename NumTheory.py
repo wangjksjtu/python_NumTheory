@@ -1,26 +1,30 @@
 # This is a function-file which is related to the common algorithms in number theory.
-# Date: 2017-05-04
+# Date1: 2017-05-04
+# Date2: 2017-05-10
+# Date3: 2017-05-18
+import random
 
 def isPrime(n):
-    if (n < 2 or type(n) != type(1)): return False
+    if (n < 2 or (type(n) != type(1) and type(n) != type(1L))):
+        return False
     if (n == 2):
         return True
     else:
-        for x in range(2, int(n ** 0.5) + 1):
+        for x in xrange(2, int(n ** 0.5) + 1):
             if n % x == 0:
                 return False
     return True
 
 def countPrime(a, b, c = 1): #[a, b) and c is interval
     count = 0
-    for x in range(a, b, c):
+    for x in xrange(a, b, c):
         if isPrime(x):
             count += 1
     return count
 
 def getAllPrime(a, b, c = 1): # [a, b) and c is interval
     prime_list = []
-    for x in range(a, b, c):
+    for x in xrange(a, b, c):
         if isPrime(x):
             prime_list.append(x)
     return prime_list
@@ -105,19 +109,25 @@ def isCoprime(a, b):
 
 def getReciprocal(a, m):
     if (isCoprime(a, m)):
-        for i in range(1, m):
+        for i in xrange(1, m):
             if a * i % m == 1:
                 return i
     else:
         return False
 
 def decompose(a):
-    if a == 0: return 0
+    if a == 0 or a == 1: return a
     a = abs(a)
     plist = []
     alphalist = []
     flag = False
+    #if (a == 2 or a == 3):
+    #    return ([a,], [1,])
     while (True):
+        if a == 2 or a == 3:
+            plist.append(a)
+            alphalist.append(1)
+            break
         for x in range (2, int(a ** 0.5) + 1):
             if a % x == 0:
                 plist.append(x)
@@ -127,10 +137,14 @@ def decompose(a):
                 plist.append(a)
                 alphalist.append(1)
                 flag = True
+        #print plist, alphalist
         if (flag or a == 1): break
+        #print a, x
         while (a % x == 0):
             a /= x
+            #print a, x
             alphalist[-1] += 1
+        #print a, x
     return plist, alphalist
 
 def getStandardDecomposition(a):
@@ -190,7 +204,7 @@ def quadraticResidue_prime(p):
         if p == 2: return [1,]
         else:
             alist = []
-            for x in range(1, (p - 1)/2 + 1):
+            for x in xrange(1, (p - 1)/2 + 1):
                 alist.append(x ** 2 % p)
             alist.sort()
             return alist
@@ -206,7 +220,7 @@ def quadraticResidue_prime_pair(p):
         if p == 2: return [1,]
         else:
             alist = []
-            for x in range(1, (p - 1)/2 + 1):
+            for x in xrange(1, (p - 1)/2 + 1):
                 alist.append(((x ** 2 % p), x))
             alist.sort()
             return alist
@@ -220,7 +234,7 @@ def EllipticCurveEquation(a, b, c, d, p):
         return a * x ** 3 + b * x ** 2 + c * x + d
     alist = quadraticResidue_prime(p)
     blist = quadraticResidue_prime_pair(p)
-    for x in range(0, p):
+    for x in xrange(0, p):
         if (f(x) % p) in alist:
             y = blist[alist.index(f(x) % p)][1]
             results.append((x, y))
@@ -231,11 +245,13 @@ def EllipticCurveEquation(a, b, c, d, p):
     return results
 
 def Legendre(a, p):
+    a = a % p
     if not isPrime(p):
         return False
     if (p == 2):
         return 1
-    a = a % p
+    if a == 1: return 1
+    if a == p - 1: return (-1) ** ((p - 1)/2)
     if isPrime(a):
         if a % 2 == 1:
             return (-1) ** ((p - 1) / 2 * (a - 1) / 2) * Legendre(p, a)
@@ -249,7 +265,7 @@ def Legendre(a, p):
             if (x % 2 != 0):
                 plist2.append(plist[i])
         result = 1
-        for i in range(len(plist2)):
+        for i in xrange(len(plist2)):
             result *= Legendre(plist2[i], p)
         return result
 
@@ -261,13 +277,13 @@ def Jacobi(a, p):
         if (x % 2 != 0):
             plist2.append(plist[i])
     result = 1
-    for i in range(len(plist2)):
+    for i in xrange(len(plist2)):
         result *= Legendre(a, plist2[i])
     return result
 
 def NaiveModSquareEquation(a, m):
     result = []
-    for x in range(0, int(m ** 0.5) + 1):
+    for x in xrange(0, int(m ** 0.5) + 1):
         if x**2 % m == a:
             result.append((x, m - x))
     if (len(result) == 0):
@@ -278,7 +294,7 @@ def ModSquareEquation(a, m):
     pass
 
 def NaiveSquarePEquation(p):
-    for x in range(0, int(p ** 0.5) + 1):
+    for x in xrange(0, int(p ** 0.5) + 1):
         y = p - x ** 2
         if ((int(y ** 0.5) ** 2 == y) or ((int(y ** 0.5) + 1) ** 2 == y)
                 or ((int(y ** 0.5) - 1) ** 2 == y)):
@@ -288,14 +304,14 @@ def NaiveSquarePEquation(p):
 def EulerFunction(m):
     plist, aplhalist = decompose(m)
     result = m
-    for x in range(len(plist)):
+    for x in xrange(len(plist)):
         result *= plist[x] - 1
         result /= plist[x]
     return result
 
 def getSimplifySurplus(m):
     result = []
-    for x in range(1, m):
+    for x in xrange(1, m):
         if isCoprime(x, m):
             result.append(x)
     return result
@@ -304,7 +320,7 @@ def isPrimaryRoot(g, p):
     if not isPrime(p) or g <= 1:
         return False
     plist, alphalist = decompose(p - 1)
-    for i in range(len(plist)):
+    for i in xrange(len(plist)):
         if (g ** ((p - 1)/plist[i]) % p == 1):
             return False
     return True
@@ -313,17 +329,16 @@ def getAllPrimaryRoot_naive(p):
     if not isPrime(p):
         return False
     alist = []
-    for x in range(1, p):
+    for x in xrange(1, p):
         if isPrimaryRoot(x, p):
             alist.append(x)
     return alist
-
 
 def getAllPrimaryRoot(p):
     if not isPrime(p):
         return False
     g = 0
-    for x in range(2, p):
+    for x in xrange(2, p):
         if isPrimaryRoot(x, p):
             g = x
             break;
@@ -334,127 +349,71 @@ def getAllPrimaryRoot(p):
     result.sort()
     return result
 
-def main():
-#########################################
-#   Test of isPrime
-    print isPrime(9)
-    print isPrime(2017)
-    print isPrime(2**(2**4) + 1)
-    print isPrime(5098129)
-#########################################
-#   Test of countPrime
-    print countPrime(2, 100)
-    print countPrime(2, 3)
-#########################################
-#   Test of getAllPrime
-    print getAllPrime(2, 100)
-    print len(getAllPrime(2, 10000))
-#########################################
-#   Test of getResidue
-    print getResidue(13)
-    print getResidue(13, 1)
-    print getResidue(13, 2)
-    print getResidue(14, 2)
-#########################################
-#   Test of EuclidDivision
-    print EuclidDivision(1247894560, 132131)
-    print EuclidDivision(28, 11, 0)
-    print EuclidDivision(28, 11, 1)
-    print EuclidDivision(30, 12, 2)
-    print EuclidDivision(29, 12, 2)
-#########################################
-#   Test of greatestCommonDivisor
-    print greatestCommonDivisor(- 2007 * 5 * 7, 2007 * 3 * 5)
-#########################################
-#   Test of greatestCommonDivisor_n
-    print greatestCommonDivisor_n([120, 150, 210, 35])
-    print greatestCommonDivisor_n([-2 * 2017, 3 * 7, 7 * 2017])
-#########################################
-#   Test of leastCommonMultiple
-    print leastCommonMultiple(2 * 2017, 3 * 2017)
-#########################################
-#   Test of leastCommonMultiple_n
-    print leastCommonMultiple_n([120, 150, 210, 35])
-    print leastCommonMultiple_n([3 * 5, 5 * 7, 7 * 11])
-#########################################
-#   Test of Bezout
-    print Bezout(1859, 1573)
-    print Bezout(46480, 39423)
-#########################################
-#   Test of getReciprocal
-    print getReciprocal(2, 4)
-    print getReciprocal(3, 7)
-#########################################
-#   Test of binaryLinearDiophantineEquation
-    print binaryLinearDiophantineEquation(7, 4, 100)
-    print binaryLinearDiophantineEquation(7, 14, 20)
-#########################################
-#   Test of isCoprime
-    print isCoprime(2017, 2017 * 456)
-    print isCoprime(2017, 2 ** (2 ** 4) + 1)
-#########################################
-#   Test of decompose
-    print decompose(2**10)
-    print decompose(45623156421)
-    print decompose(2**10*3**10*7**5)
-    print decompose(0)
-    print decompose(2017)
-#########################################
-#   Test of getStandardDecomposition
-    print getStandardDecomposition(-2**10*3**10*7**5)
-    print getStandardDecomposition(2017 * 2014)
-#########################################
-#   Test of quadraticResidue_prime
-    print quadraticResidue_prime(17)
-    print quadraticNonResidue_prime(17)
-    print quadraticResidue_prime_pair(17)
-#########################################
-#   Test of ECC_Equation
-    print EllipticCurveEquation(1,0,1,1,7)
-    print EllipticCurveEquation(1,0,2,-1,7)
-    print EllipticCurveEquation(1,0,3,-1,7)
-#########################################
-#   Test of Legendre
-    print Legendre(2, 59)
-    print Legendre(5, 41)
-    print Legendre(37, 79)
-    print Legendre(5, 2017)
-    print Legendre(-1, 41)
-#########################################
-#   Test of Jacobi
-    print Jacobi(286, 563)
-    print Jacobi(191, 397)
-#########################################
-#   Test of NaiveModEquation
-    print NaiveModSquareEquation(137, 227)
-    print NaiveModSquareEquation(39, 105)
-    print NaiveModSquareEquation(1369, 2310)
-#########################################
-#   Test of NaiveSquareQEquation
-    print NaiveSquarePEquation(797)
-    print NaiveSquarePEquation(100000037)
-#########################################
-#   Test of EulerFunction
-    print EulerFunction(2048)
-    print EulerFunction(40)
-#########################################
-#   Test of isPrimaryRoot
-    print isPrimaryRoot(35, 41)
-    print isPrimaryRoot(32, 41)
-    print isPrimaryRoot(1, 41)
-#########################################
-#   Test of getAllPrimaryRoot_naive
-    print getAllPrimaryRoot_naive(41)
-    print getAllPrimaryRoot_naive(43)
-#########################################
-#   Test of getSimplifySurplus
-    print getSimplifySurplus(40)
-#########################################
-#   Test of getAllPrimaryRoot
-    print getAllPrimaryRoot(41)
-    print getAllPrimaryRoot(43)
-#########################################
-#   Test of quickPow
-    print quickPow(6, 39, 41)
-if __name__ == "__main__":
-    main()
+def FermatPseudoprime(size, probability = 0.0001):
+    # Without consideration of Carmichael Number
+    # If one integer is Carmichael Number, the pro is non-sense
+    times = 0
+    if (size <= 2): return False
+    while (True):
+        pro = 1
+        if (times > 2 ** (size - 1)):
+            size += 1
+            times = 0
+        n = random.randint(2**(size - 1), 2**size - 1)
+        #print n
+        if n % 2 == 0: continue
+        while (pro > probability):
+            b = random.randint(2, n - 2)
+            times2 = 0
+            while not (isCoprime(n, b)):
+                b = random.randint(2, n - 2)
+                times2 += 1
+                if times2 >= n:
+                    break
+            if (times2 >= n):
+                break
+            if (quickPow(b, n - 1, n) != 1):
+                break
+            else:
+                pro *= 0.5
+        if (pro <= probability):
+            return n, len(bin(n)) - 2
+        times += 1
+
+# This function may have some bug remaining to fix
+# This is because that this function has low efficiency and can not
+# proper specific digit eulerpseudoprime (always produce larger ones)
+def EulerPseudoprime(size, probability = 0.0001):
+    times = 0
+    if (size <= 2): return False
+    while (True):
+        pro = 1
+        if (times > 2 ** (size - 1)):
+            times = 0
+            size += 1
+        n = random.randint(2 ** (size - 1), 2**size - 1)
+        if (n % 2 == 0):
+            continue
+        while (pro > probability):
+            b = random.randint(2, n - 2)
+            times2 = 0
+            '''while not (isCoprime(n, b)):
+                b = random.randint(2, n - 2)
+                times2 += 1
+                if times2 >= n:
+                    break
+            if times2 >= n:
+                break '''
+            r = quickPow(b, (n - 1)/2, n)
+            if (r != 1 and r != r - 1):
+                break
+            #print (b, n)
+            s = Jacobi(b, n)
+            #print s
+            if (r != s):
+                #print r
+                break
+            pro *= 0.5
+        if (pro <= probability):
+            return n, len(bin(n)) - 2
+        times += 1
